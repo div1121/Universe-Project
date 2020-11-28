@@ -21,26 +21,32 @@ Student Name: Chu Chun To
 #include <cstdlib>
 #include <ctime>
 
-// screen setting
+//screen setting
 const int SCR_WIDTH = 800;
 const int SCR_HEIGHT = 600;
 
-#define N 20
+//define parameter for object
+#define N 10
 #define B 3
 #define Amount 200
-#define F 10
+#define F 6
+
+//vao,vbo and ebo
 GLuint vaoID[N], vboID[N], eboID[N];
 
 //set camera
 glm::vec3 cameraposition = glm::vec3(15.0f, 0.0f, 0.0f);
 glm::vec3 camerafrontvector = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraupvector = glm::vec3(0.0f, 1.0f, 0.0f);
+
+//spotlight direction
 glm::vec3 spotlightdir = camerafrontvector - cameraposition + glm::vec3(0.0f, 0.3f, 0.0f);
 
 //set view control
 float dtime = 0.0f;
 float lframe = 0.0f;
 
+//for zoom in and out
 float fov = 45;
 
 //spacecraft
@@ -52,31 +58,37 @@ float spacecraftangle = 0.0f;
 glm::mat4 view;
 glm::mat4 projection;
 
-//three shading
+//three shader
 Shader shading;
 Shader lightshading;
 Shader skyboxshading;
 
 //texture load
-Texture textureall[N];
+Texture textureall[N+3];
 
-//to keep track of texture
+//to keep track of object texture
 int planeindex = 5;
 int alienvehiculeindex[B] = {1,1,1};
 bool food[F];
 
-//light intensity
+//adjust environment light intensity
 float dlightintensity = 1.2f;
+float plightone = 0.8f;
+float plighttwo = 0.8f;
 
+//keep track skybox texture
 unsigned int skyboxtex;
 
+//for self rotation of objects
 float selfrotating = 0.0f;
 
+//for spacecraft parameter
 glm::vec3 SCInitialPos = glm::vec3(15.0f, 3.0f, -3.0f);
 glm::vec3 SCTranslation = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 SC_world_Front_Direction;
 glm::vec3 SC_world_Right_Direction;
 
+//for rock position
 glm::mat4 rockmodel[Amount];
 
 // struct for storing the obj file
@@ -91,6 +103,7 @@ struct Model {
 	std::vector<unsigned int> indices;
 };
 
+//object modal
 Model obj[N];
 
 Model loadOBJ(const char* objPath)
@@ -217,6 +230,7 @@ void get_OpenGL_info()
 
 unsigned int loadCubemap(std::vector<std::string> faces)
 {
+	// load skymap texture
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -348,7 +362,7 @@ void sendDataToOpenGL()
 
 	//alienvehicle texture
 	textureall[1].setupTexture("resource/texture/alienTexture.bmp");
-	textureall[N-1].setupTexture("resource/texture/colorful_alien_vehicleTexture.bmp");
+	textureall[N+2].setupTexture("resource/texture/colorful_alien_vehicleTexture.bmp");
 
 	//chicken
 	obj[2] = loadOBJ("resource/chicken.obj");
@@ -405,7 +419,7 @@ void sendDataToOpenGL()
 
 	//planet texture
 	textureall[3].setupTexture("resource/texture/planetTexture.bmp");
-	textureall[N-2].setupTexture("resource/texture/planetNormal.bmp");
+	textureall[N+1].setupTexture("resource/texture/planetNormal.bmp");
 
 	//rock
 	obj[4] = loadOBJ("resource/rock.obj");
@@ -462,7 +476,7 @@ void sendDataToOpenGL()
 
 	//spacecraft texture
 	textureall[5].setupTexture("resource/texture/spacecraftTexture.bmp");
-	textureall[N-3].setupTexture("resource/texture/leisure_spacecraftTexture.bmp");
+	textureall[N].setupTexture("resource/texture/leisure_spacecraftTexture.bmp");
 
 	// skybox
 	glBindVertexArray(vaoID[6]);
@@ -580,7 +594,7 @@ void sendDataToOpenGL()
 }
 
 void createrockmodel() {
-	//rockmodel = new glm::mat4[Amount];
+	// create rock model
 	srand(time(NULL));
 	float radius = 12.0f;
 	float offset = 0.8f;
@@ -601,8 +615,12 @@ void createrockmodel() {
 		float rotateangle = (rand() % 360);
 		model = glm::rotate(model, glm::radians(rotateangle), glm::vec3(0.4f, 0.6f, 0.8f));
 		rockmodel[i] = model;
-		//std::cout << "yes" << std::endl;
 	}
+}
+
+void setfood() {
+	for (int i = 0; i < F; i++)
+		food[i] = true;
 }
 
 void initializedGL(void) //run only once
@@ -612,15 +630,18 @@ void initializedGL(void) //run only once
 	}
 
 	get_OpenGL_info();
+
 	sendDataToOpenGL();
+
 	createrockmodel();
-	//TODO: set up the vertex shader and fragment shader
+
+	setfood();
+
+	//set up the vertex shader and fragment shader
 	shading.setupShader("VertexShaderCode.glsl", "FragmentShaderCode.glsl");
 	lightshading.setupShader("LightVertexShader.glsl", "LightFragmentShader.glsl");
 	skyboxshading.setupShader("SkyboxVertexShader.glsl", "SkyboxFragmentShader.glsl");
 
-	for (int i = 0; i < F; i++)
-		food[i] = true;
 
 	glEnable(GL_DEPTH_TEST);
 }
@@ -643,6 +664,8 @@ void Renderthescene(Shader &tempshader) {
 	SC_world_Right_Direction = SC_Rot_M * glm::vec4(SC_local_right, 1.0f);
 	SC_world_Front_Direction = glm::normalize(SC_world_Front_Direction);
 	SC_world_Right_Direction = glm::normalize(SC_world_Right_Direction);
+
+	//view and projection
 	cameraposition = tempmodel * glm::vec4(glm::vec3(0.0f, 0.5f, 0.8f),1.0f);
 	camerafrontvector = tempmodel * glm::vec4(glm::vec3(0.0f, 0.0f, -0.8f), 1.0f);
 	view = glm::lookAt(cameraposition, camerafrontvector, cameraupvector);
@@ -650,12 +673,12 @@ void Renderthescene(Shader &tempshader) {
 	projection = glm::mat4(1.0f);
 	projection = glm::perspective(glm::radians(fov), (float)800 / (float)600, 0.1f, 1000.0f);
 	tempshader.setMat4("projection", projection);
-	// model = model * glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	tempshader.setMat4("model", model);
 
+	//spotlight
 	spotlightdir = camerafrontvector - cameraposition + glm::vec3(0.0f, 0.3f, 0.0f);
-	lightshading.setVec3("slight.position", cameraposition);
-	lightshading.setVec3("slight.direction", spotlightdir);
+	tempshader.setVec3("slight.position", cameraposition);
+	tempshader.setVec3("slight.direction", spotlightdir);
 
 	textureall[planeindex].bind(0);
 	glBindVertexArray(vaoID[5]);
@@ -733,13 +756,13 @@ void Renderthescene(Shader &tempshader) {
 	tempshader.setMat4("model", model);
 	tempshader.setInt("normalmap_flag", 1);
 	textureall[3].bind(0);
-	textureall[N-2].bind(1);
+	textureall[N+1].bind(1);
 	glBindVertexArray(vaoID[3]);
 	glDrawElements(GL_TRIANGLES, obj[3].indices.size(), GL_UNSIGNED_INT, 0);
 	textureall[3].unbind();
-	textureall[N-2].unbind();
-
+	textureall[N+1].unbind();
 	tempshader.setInt("normalmap_flag", 0);
+
 	//rock
 	glm::mat4 temp;
 	temp = glm::mat4(1.0f);
@@ -830,19 +853,21 @@ void Renderthescene(Shader &tempshader) {
 	}
 }
 
-void checkalienvehicule() {
+void checkalienvehicle() {
+	// check whether the spacecraft is close to alien vehicle
 	glm::vec3 first = glm::vec3(0.0f, 0.0f, -50.0f) - cameraposition;
 	if (glm::sqrt(glm::dot(first, first)) <= 10.0f)
-		alienvehiculeindex[0] = N - 1;
+		alienvehiculeindex[0] = N + 2;
 	glm::vec3 second = glm::vec3(5.0f, 0.0f, -100.0f) - cameraposition;
 	if (glm::sqrt(glm::dot(second, second)) <= 10.0f)
-		alienvehiculeindex[1] = N - 1;
+		alienvehiculeindex[1] = N + 2;
 	glm::vec3 third = glm::vec3(10.0f, 0.0f, -150.0f) - cameraposition;
 	if (glm::sqrt(glm::dot(third, third)) <= 10.0f)
-		alienvehiculeindex[2] = N - 1;
+		alienvehiculeindex[2] = N + 2;
 }
 
 void checkfood() {
+	//check whether the food is close to the spacecraft
 	glm::vec3 first = glm::vec3(8.0f, 3.0f, -50.0f) - cameraposition;
 	if (glm::sqrt(glm::dot(first, first)) <= 5.0f)
 		food[0] = false;
@@ -864,13 +889,14 @@ void checkfood() {
 }
 
 void checkplane() {
+	//check whether the plane finish the tasks
 	for (int i = 0; i < B; i++)
-		if (alienvehiculeindex[i] != N - 1)
+		if (alienvehiculeindex[i] != N + 2)
 			return;
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < F; i++)
 		if (food[i])
 			return;
-	planeindex = N - 3;
+	planeindex = N;
 }
 
 void paintGL(void)  //always run
@@ -880,7 +906,9 @@ void paintGL(void)  //always run
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_FALSE);
 
+	//skybox rendering
 	skyboxshading.use();
+
 	//view
 	glm::mat4 fview;
 	fview = glm::mat4(1.0f);
@@ -905,18 +933,9 @@ void paintGL(void)  //always run
 	// glEnable(GL_BLEND);
 	// glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
 	// glBlendColor(1.0, 1.0, 1.0, 0.5);
-
-	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	lightshading.use();
 
-	//TODO:
-	//Set lighting information, such as position and color of lighting source
-	//Set transformation matrix
-	//Bind different textures
-
 	//material for all objects
-	// lightshading.setInt("m.diffuse", 0);
 	lightshading.setVec3("m.specular", 1.0, 1.0, 1.0);
 	lightshading.setVec3("viewpos", cameraposition);
 	lightshading.setFloat("m.shiny", 32.0f);
@@ -931,7 +950,7 @@ void paintGL(void)  //always run
 	//point light
 	lightshading.setVec3("plight[0].position", 0.0f, 8.0f, -45.0f);
 	lightshading.setVec3("plight[0].ambient", 0.05f, 0.05f, 0.05f);
-	lightshading.setVec3("plight[0].diffuse", 0.8f, 0.8f, 0.8f);
+	lightshading.setVec3("plight[0].diffuse", plightone, plightone, plightone);
 	lightshading.setVec3("plight[0].specular", 0.15f, 0.15f, 0.15f);
 	lightshading.setFloat("plight[0].constant", 0.8f);
 	lightshading.setFloat("plight[0].linear", 0.1f);
@@ -939,7 +958,7 @@ void paintGL(void)  //always run
 
 	lightshading.setVec3("plight[1].position", 5.0f, 8.0f, -95.0f);
 	lightshading.setVec3("plight[1].ambient", 0.05f, 0.05f, 0.05f);
-	lightshading.setVec3("plight[1].diffuse", 0.85f, 0.85f, 0.85f);
+	lightshading.setVec3("plight[1].diffuse", plighttwo, plighttwo, plighttwo);
 	lightshading.setVec3("plight[1].specular", 0.1f, 0.1f, 0.1f);
 	lightshading.setFloat("plight[1].constant", 0.8f);
 	lightshading.setFloat("plight[1].linear", 0.1f);
@@ -973,6 +992,7 @@ void paintGL(void)  //always run
 	lightshading.setFloat("slight.cutoff", glm::cos(glm::radians(12.5f)));
 	lightshading.setFloat("slight.outercutoff", glm::cos(glm::radians(15.0f)));
 	
+	//normal map flag
 	lightshading.setInt("normalmap_flag", 0);
 
 	//view
@@ -987,21 +1007,6 @@ void paintGL(void)  //always run
 
 	Renderthescene(lightshading);
 
-	/*
-	glDepthFunc(GL_LEQUAL);
-	skyboxshading.use();
-	view = glm::mat4(glm::mat3(view)); // remove translation from the view matrix
-	skyboxshading.setMat4("view", view);
-	skyboxshading.setMat4("projection", projection);
-	// skybox cube
-	glBindVertexArray(vaoID[6]);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxtex);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glDepthFunc(GL_LESS); // set depth function back to default
-	*/
-	// glDisable(GL_BLEND);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -1011,7 +1016,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	//adjust camera position and direction so that they rotate accordingly
+	//adjust camera position and direction follow with the spacecraft
 	if (first) {
 		oldx = xpos;
 		first = false;
@@ -1023,7 +1028,6 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 			spacecraftangle -= 2.0f;
 		oldx = xpos;
 	}
-	// std::cout << xpos << " " << oldx << std::endl;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -1043,17 +1047,39 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, true);
 	
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		//increase light intensity
+		//increase environment light intensity
 		if (dlightintensity < 2.5f)
 			dlightintensity += 0.1f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		//decrease light intensity
+		//decrease enviroment light intensity
 		if (dlightintensity > 0.0f)
 			dlightintensity -= 0.1f;
 	}
 
-	//move
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		//increase point light 1 intensity
+		if (plightone < 2.5f)
+			plightone += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		//decrease point light 1 intensity
+		if (plightone > 0.0f)
+			plightone -= 0.1f;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+		//increase point light 1 intensity
+		if (plighttwo < 2.5f)
+			plighttwo += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+		//decrease point light 1 intensity
+		if (plighttwo > 0.0f)
+			plighttwo -= 0.1f;
+	}
+
+	//adjust the position of spacecraft
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		SCTranslation[0] = SCTranslation[0] + 0.5* SC_world_Front_Direction[0];
 		SCTranslation[2] = SCTranslation[2] + 0.5* SC_world_Front_Direction[2];
@@ -1073,7 +1099,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		SCTranslation[0] = SCTranslation[0] + 0.5* SC_world_Right_Direction[0];
 		SCTranslation[2] = SCTranslation[2] + 0.5* SC_world_Right_Direction[2];
 	}
-	checkalienvehicule();
+
+	checkalienvehicle();
 	checkfood();
 	checkplane();
 }
@@ -1120,15 +1147,17 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		return -1;
 	}
-	get_OpenGL_info();
+
 	initializedGL();
-	// std::cout << cameraposition[0] << std::endl;
+
 	while (!glfwWindowShouldClose(window)) {
 
 		//time & angle changing
 		float currentFrame = (float)glfwGetTime();
 		dtime = currentFrame - lframe;
 		lframe = currentFrame;
+
+		//self rotation
 		selfrotating += 0.1f;
 		if (selfrotating >= 360)
 			selfrotating -= 360;
