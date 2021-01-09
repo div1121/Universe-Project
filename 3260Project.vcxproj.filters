@@ -33,4 +33,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="FragmentShaderCode.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="LightFragmentShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="LightVertexShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="SkyboxFragmentShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="SkyboxVertexShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="VertexShaderCode.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

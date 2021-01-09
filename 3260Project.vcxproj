@@ -135,6 +135,14 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="FragmentShaderCode.glsl" />
+    <None Include="LightFragmentShader.glsl" />
+    <None Include="LightVertexShader.glsl" />
+    <None Include="SkyboxFragmentShader.glsl" />
+    <None Include="SkyboxVertexShader.glsl" />
+    <None Include="VertexShaderCode.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,9 +1,3 @@
-/*
-Student Information
-Student ID: 1155127149
-Student Name: Chu Chun To
-*/
-
 #include "Dependencies/glew/glew.h"
 #include "Dependencies/GLFW/glfw3.h"
 #include "Dependencies/glm/glm.hpp"
