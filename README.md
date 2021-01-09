@@ -1,43 +1,73 @@
 # CSCI3260-Project
 
-OpenGL project (C++): interactive scene of Universe with aliens, alien vehicles, planet wiht asteroid ring, spacecraft and food
+- OpenGL project (C++): interactive scene of Universe with aliens, alien vehicles, planet wiht asteroid ring, spacecraft and food
 
-Can be opened in Visual Studio
+- Can be opened in Visual Studio
 
 # 1. Overall Scene
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image1.png)
+
 With Both directional light and point light source:
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image2.png)
+
 With only point light source:
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image3.png)
 
 # 2.Basic light rendering
 
 Alien vehicle:
- 
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image4.png)
+
 Chicken:
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image5.png)
  
 Rocks:
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image6.png)
  
 # 3. Main features
+
 Before collecting foods:
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image7.png)
  
 After collecting foods:
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image8.png)
 
 Before visit aliens:
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image9.png)
  
 After visit aliens:
-  
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image10.png)
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image11.png)
+  
 Texture change on spacecraft after visiting aliens:
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image12.png)
+
 # 4.Bonus features
+
 Normal Mapping:
- 
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image13.png)
+
 Another light source (Spotlight):
+
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image14.png)
  
 Extra Food: Pineapple & apple & banana
 
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image15.png)
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image16.png)
+![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image17.png)
 
 # 5. Manipulation
 
