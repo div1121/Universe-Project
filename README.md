@@ -18,7 +18,7 @@ With only point light source:
 
 ![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image3.png)
 
-# 2.Basic light rendering
+# 2. Basic light rendering
 
 Alien vehicle:
 
@@ -55,7 +55,7 @@ Texture change on spacecraft after visiting aliens:
 
 ![alt text](https://github.com/div1121/3260project/blob/main/Project_Detail/image/image12.png)
 
-# 4.Bonus features
+# 4. Bonus features
 
 Normal Mapping:
 
