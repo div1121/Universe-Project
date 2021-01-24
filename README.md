@@ -1,6 +1,6 @@
 # CSCI3260-Project
 
-- OpenGL project (C++): interactive scene of Universe with aliens, alien vehicles, planet wiht asteroid ring, spacecraft and foods
+- OpenGL project (C++): interactive scene of Universe with aliens, alien vehicles, planet with asteroid ring, spacecraft and foods
 
 - Can be opened in Visual Studio
 
