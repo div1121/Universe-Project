@@ -1,4 +1,4 @@
-# CSCI3260-Project
+# Universe Project
 
 - OpenGL project (C++): interactive scene of Universe with aliens, alien vehicles, planet with asteroid ring, spacecraft and foods
 
